@@ -6,6 +6,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Rename the repo to `zsh-runner.yazi` so that `ya pkg` can install it.
 ## [1.0.0] - 2026-11-24
 
 ### Added
