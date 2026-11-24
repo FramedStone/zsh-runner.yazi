@@ -1,6 +1,34 @@
 --- @since 26.5.6
 local maxOutputBytes = 20 * 1024 * 1024
 
+-- Programs that need a real terminal.
+local terminalWords = {}
+for _, name in ipairs({
+	"lazygit",
+	"tig",
+	"nvim",
+	"vim",
+	"vi",
+	"nano",
+	"emacs",
+	"htop",
+	"btop",
+	"top",
+	"less",
+	"more",
+	"man",
+	"fzf",
+	"ssh",
+	"ranger",
+	"mc",
+	"tmux",
+	"screen",
+	"watch",
+	"yazi",
+}) do
+	terminalWords[name] = true
+end
+
 -- Get current working directory.
 local getCurrentDirectory = ya.sync(function()
 	return tostring(cx.active.current.cwd)
@@ -69,6 +97,17 @@ local function splitLines(content)
 	end
 
 	return lines
+end
+
+-- Check if the command needs a terminal.
+local function needsTerminal(command)
+	for word in command:gmatch("[%w][%w._%-]*") do
+		if terminalWords[word] then
+			return true
+		end
+	end
+
+	return false
 end
 
 local M = {
@@ -241,6 +280,20 @@ function M:entry()
 	})
 
 	if event ~= 1 or not command or command:match("^%s*$") then
+		return
+	end
+
+	-- A leading `!` forces terminal mode.
+	local forceTerminal = command:match("^%s*!") ~= nil
+	command = command:gsub("^%s*!", "")
+
+	if command:match("^%s*$") then
+		return
+	end
+
+	-- Interactive programs run in Yazi's blocking shell with a real terminal.
+	if forceTerminal or needsTerminal(command) then
+		ya.emit("shell", { run = command, block = true })
 		return
 	end
 

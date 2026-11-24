@@ -27,6 +27,16 @@ Minimal vim motions supported
 | `g` / `G` | Jump to top / bottom |
 | `q` / `<Esc>` | Close |
 
+### Interactive programs
+
+Programs that need a terminal, such as `lazygit`, `vim`, `htop`, or `fzf`, run in Yazi's blocking shell. The program takes the terminal. Yazi returns when the program exits.
+
+Use a `!` prefix to force terminal mode for any command:
+
+```
+!ranger
+```
+
 ## Architecture
 
 ```
@@ -38,22 +48,29 @@ Minimal vim motions supported
    └────────┬─────────┘
             │ command
             ▼
-   ┌──────────────────┐
-   │ /bin/zsh -ic     │  run in current directory
-   └────────┬─────────┘
-            │ stdout + stderr + exit code
-            ▼
-   ┌──────────────────┐
-   │ viewer state     │  lines + offset (ya.sync)
-   └────────┬─────────┘
-            │
-            ▼
-   ┌──────────────────┐
-   │ Modal            │  producer → consumer → redraw
-   └──────────────────┘
+   ┌───────────────────┐
+   │ needs a terminal? │
+   └───┬───────────┬───┘
+       │ yes       │ no
+       ▼           ▼
+ ┌────────────┐  ┌──────────────────┐
+ │ shell      │  │ /bin/zsh -ic     │
+ │ --block    │  │ capture output   │
+ └────────────┘  └────────┬─────────┘
+                          │ stdout + stderr + exit code
+                          ▼
+                 ┌──────────────────┐
+                 │ viewer state     │  lines + offset (ya.sync)
+                 └────────┬─────────┘
+                          │
+                          ▼
+                 ┌──────────────────┐
+                 │ Modal            │  producer → consumer → redraw
+                 └──────────────────┘
 ```
 
 ## Notes
 
+- Interactive programs use the terminal, not the modal.
 - Output is cut at 20 MiB.
 - Stderr shows after a `[STDERR]` marker.
