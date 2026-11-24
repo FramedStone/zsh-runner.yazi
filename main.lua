@@ -110,6 +110,11 @@ local function needsTerminal(command)
 	return false
 end
 
+-- Quote text for a POSIX shell.
+local function shellQuote(text)
+	return "'" .. text:gsub("'", "'\\''") .. "'"
+end
+
 local M = {
 	offset = 0,
 	lines = {},
@@ -293,7 +298,7 @@ function M:entry()
 
 	-- Interactive programs run in Yazi's blocking shell with a real terminal.
 	if forceTerminal or needsTerminal(command) then
-		ya.emit("shell", { run = command, block = true })
+		ya.emit("shell", { run = "/bin/zsh -ic " .. shellQuote(command), block = true })
 		return
 	end
 
