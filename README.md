@@ -2,14 +2,19 @@
 
 Run a Zsh command in Yazi. Show the output in a scrollable modal.
 
+## Installation
+```bash
+ya pkg add FramedStone/yazi-zsh-runner
+```
+
 ## Usage
 
-Add this keymap to `keymap.toml`:
+Add this keymap to `keymap.toml` [Official Configuration](https://yazi-rs.github.io/docs/configuration/overview/):
 
 ```toml
 [mgr]
 prepend_keymap = [
-  { on = "<C-r>", run = "plugin zsh-runner", desc = "Run Zsh command" },
+  { on = "<C-r>", run = "plugin yazi-zsh-runner", desc = "Run Zsh command" },
 ]
 ```
 
